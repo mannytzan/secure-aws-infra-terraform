@@ -19,6 +19,7 @@ resource "aws_internet_gateway" "this" {
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.this.id
   cidr_block              = var.public_subnet_cidr
+  # Place the public tier in the first selected availability zone.
   availability_zone       = var.availability_zones[0]
   map_public_ip_on_launch = true
 
@@ -31,6 +32,8 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   vpc_id                  = aws_vpc.this.id
   cidr_block              = var.private_subnet_cidr
+  # Place the private tier in the second selected availability zone so the
+  # two network tiers are explicitly separated across AZs.
   availability_zone       = var.availability_zones[1]
   map_public_ip_on_launch = false
 
@@ -70,4 +73,3 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
 }
-

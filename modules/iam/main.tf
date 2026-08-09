@@ -19,6 +19,8 @@ resource "aws_iam_policy" "bucket_access" {
 
   policy = jsonencode({
     Version = "2012-10-17"
+    # Enumerate only the required S3 operations and scope bucket-level and
+    # object-level actions to their corresponding resource ARN forms.
     Statement = [
       {
         Sid      = "ListProjectBucket"
@@ -40,4 +42,3 @@ resource "aws_iam_role_policy_attachment" "bucket_access" {
   role       = aws_iam_role.application.name
   policy_arn = aws_iam_policy.bucket_access.arn
 }
-

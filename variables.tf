@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Name prefix used for project resources."
   type        = string
-  default     = "iac-security-pipeline"
+  default     = "secure-aws-infra-terraform"
 }
 
 variable "vpc_cidr" {
@@ -15,4 +15,3 @@ variable "vpc_cidr" {
   type        = string
   default     = "10.0.0.0/16"
 }
-

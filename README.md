@@ -18,10 +18,11 @@ credential while preserving visibility into future hardening opportunities.
 
 ## Security pipeline demonstration
 
-The initial S3 module intentionally omits `aws_s3_bucket_public_access_block`.
-This creates a real Checkov finding so a pull request can demonstrate that the
-security workflow blocks unsafe infrastructure. Add the public-access-block
-resource in the remediation commit to show the before/after result.
+The demonstration pull request initially omitted
+`aws_s3_bucket_public_access_block`, causing `CKV2_AWS_6` and the required
+security workflow to fail. A separate remediation commit adds all four public
+access protections, allowing the same gate to pass. The pull-request history
+preserves both results as evidence of the control working.
 
 Run checks locally:
 

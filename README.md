@@ -4,10 +4,13 @@
 
 ## Why this exists
 
-Public buckets, over-permissioned IAM policies, and other infrastructure
-misconfigurations can reach production when nothing checks Terraform before
-merge. This is a reference implementation of that gate: fork it and point it at
-your own Terraform to adopt the same pattern.
+I built this because I was tired of Terraform misconfigurations getting through
+review simply because nothing could stop them before merge. A public S3 bucket
+or an overly broad IAM policy should fail in CI, not turn into cleanup work
+after a deploy.
+
+This is a reference implementation of that gate: fork it and point it at your
+own Terraform to adopt the same pattern.
 
 ## Proof
 
@@ -16,17 +19,21 @@ your own Terraform to adopt the same pattern.
 - Before remediation: [`CKV2_AWS_6` blocked the pull request](https://github.com/mannytzan/secure-aws-infra-terraform/actions/runs/31291738520)
 - After remediation: [the same Checkov gate passed](https://github.com/mannytzan/secure-aws-infra-terraform/actions/runs/31291786250)
 
-This is real CI output, not a staged example. See
-[PR #1](https://github.com/mannytzan/secure-aws-infra-terraform/pull/1) for the
-full before/after.
+These results came from the actual pull-request workflow, not copied terminal
+output. [PR #1](https://github.com/mannytzan/secure-aws-infra-terraform/pull/1)
+has the full before/after.
 
 ## Architecture
 
-- One VPC with public and private subnets in separate availability zones
-- An internet gateway and default route only for the public subnet
-- One S3 bucket with encryption and versioning
-- One EC2-assumable role scoped to the project bucket and objects
-- A required Checkov pull-request gate plus a non-blocking full findings report
+The stack stays small on purpose. It creates one VPC with a public subnet and a
+private subnet in separate availability zones. Only the public subnet gets a
+default route through the internet gateway.
+
+The S3 bucket has encryption, versioning, and all four public-access blocks.
+An EC2-assumable IAM role can list that bucket and read or write its objects;
+it does not get wildcard S3 access. The pull-request workflow enforces the S3
+public-access check and also publishes the rest of the Checkov findings without
+blocking on them.
 
 ## Security pipeline demonstration
 
@@ -35,6 +42,9 @@ See [Proof](#proof) and
 failed public-access check and the passing remediation.
 
 ## Use this in your own repo
+
+If you want the same gate in another Terraform repo, the quickest route is to
+reuse the pieces here and adjust them to fit the account.
 
 1. Fork this repository, or copy `modules/` and
    `.github/workflows/security-scan.yml` into your Terraform project.
@@ -47,9 +57,10 @@ failed public-access check and the passing remediation.
 
 ## Terraform state
 
-Terraform state is intentionally local for this demonstration rather than an
-oversight. A production deployment should use a protected remote backend with
-state locking, encryption, versioning, and tightly scoped access controls.
+State is local here on purpose. This repo is still a reference implementation,
+so adding a remote backend would imply deployment decisions that it does not
+make yet. For a real environment, I would use a protected remote backend with
+locking, encryption, versioning, and tightly scoped access.
 
 ## Local validation
 

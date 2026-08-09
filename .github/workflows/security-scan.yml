@@ -1,0 +1,26 @@
+name: Terraform security scan
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checkov:
+    name: Checkov
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan Terraform configuration
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          # Fail on every finding. This is stricter than a HIGH/CRITICAL-only
+          # gate and works without storing a Prisma Cloud API key.
+          soft_fail: false
+          output_format: cli

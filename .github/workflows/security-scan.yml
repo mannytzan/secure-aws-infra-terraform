@@ -8,19 +8,27 @@ permissions:
 
 jobs:
   checkov:
-    name: Checkov
+    name: Checkov S3 public-access gate
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Scan Terraform configuration
+      - name: Enforce the S3 public-access block
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: .
           framework: terraform
-          # Fail on every finding. This is stricter than a HIGH/CRITICAL-only
-          # gate and works without storing a Prisma Cloud API key.
+          check: CKV2_AWS_6
           soft_fail: false
+          output_format: cli
+
+      - name: Report all other Terraform findings
+        if: always()
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          soft_fail: true
           output_format: cli

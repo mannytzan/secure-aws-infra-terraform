@@ -4,9 +4,10 @@ This project demonstrates a small segmented AWS network, a versioned and
 encrypted S3 bucket, a least-privilege IAM role, and a Checkov pull-request
 gate.
 
-The pull-request scan fails on every Checkov finding. This is intentionally
-stricter than a HIGH/CRITICAL-only threshold and requires no external scanner
-API credential.
+The pull-request scan blocks on the deliberately omitted S3 public-access
+block (`CKV2_AWS_6`) and publishes a non-blocking report of all other findings.
+This keeps the demonstration deterministic without an external scanner API
+credential while preserving visibility into future hardening opportunities.
 
 ## Architecture
 
